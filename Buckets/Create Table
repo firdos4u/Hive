@@ -1,0 +1,44 @@
+Hi guys! Here we are going to learn how to create buckets in Hive.For this, we are going to create Hive Bucket table 
+which contains mark obtained by students.
+We have input data in text file format which contains id,Name and mark of student. 
+
+Step1.
+Create a temporary table or normal table in Hive:
+
+CREATE  TABLE marks_temp(
+id INT,
+Name string,
+mark int
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+Step2. Load data into above table from text file which is present in local path. You can get this file in the folder named as inputdata:
+
+LOAD DATA LOCAL INPATH 'Desktop/Data/inputdata.txt'
+INTO TABLE  marks_temp;
+
+step3.
+Now, we will create a bucketed table named as 'marks_bucketed'. We will create 4 buckets on id :
+
+CREATE TABLE marks_bucketed(
+id INT,
+Name string,
+mark int
+)
+CLUSTERED BY (id) INTO 4 BUCKETS;
+
+step4. 
+By default, in Hive bucketing is disabled. To enable it, we need to set 'hive.enforce.bucketing' as true.
+
+set hive.enforce.bucketing=true;
+
+step5.
+Now, we can insert data from marks_temp ti marks_bucketed table
+
+INSERT INTO marks_bucketed
+SELECT id,Name, mark FROM marks_temp;
+
+After this, one mapreduce job will run. In this job, No.of reducer will same as no. of buckets we are going to create in table.
+In our case no. of reducer will be 4.
+After successfull completion of job, we can see buckets from file browser(for me it is Hue as I am using Cloudera).
